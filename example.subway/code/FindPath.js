@@ -211,10 +211,10 @@ module.exports.function = function findPath(startPoint, endPoint) {
     };
   }
 
-
   var date = new Date();
-  var nowMinTime = Number(date.getHours()) * 60 + Number(date.getMinutes());
-
+  var utcTime = Number(date.getHours()) * 60 + Number(date.getMinutes());
+  var nowMinTime = (utcTime + 540) % 1440;
+  
   function changeTime(time) {
     var minTime = Number(time.substr(0, 2)) * 60 + Number(time.substr(3, 2));
     return minTime;
@@ -452,11 +452,36 @@ module.exports.function = function findPath(startPoint, endPoint) {
     return false;
   }
 
+  function setDay(day) {
+    if (utcTime + 540 >= 1440) {
+      if (day >= 7)
+        day = (day + 1) % 7;
+      else
+        day = day + 1;
+    }
+    return day;
+  }
+  
+  function nowDay(day) {
+    switch (day) {
+      case 1:
+      case 2:
+      case 3:
+      case 4:
+      case 5:
+        return '1';
+      case 6:
+        return '2';
+      case 7:
+        return '3';
+    }
+  }
+  
   function getResultTime(start, end, line, times, j, beforeTime) {
     var res = times;
     for (let i = 1; i < 3; i++) {
-      var startTime = getStationTime(start, '1', i, (j == 0) ? nowMinTime : changeTime(beforeTime), line);
-      var endTime = findSameTrain(end, '1', i, changeTime(startTime.resultTime), startTime.resultTrain);
+      var startTime = getStationTime(start, nowDay(setDay(date.getDay())), i, (j == 0) ? nowMinTime : changeTime(beforeTime), line);
+      var endTime = findSameTrain(end, nowDay(setDay(date.getDay())), i, changeTime(startTime.resultTime), startTime.resultTrain);
       if (endTime != false) {
         //          console.log(startTime);
         //          console.log(endTime);
@@ -525,6 +550,6 @@ module.exports.function = function findPath(startPoint, endPoint) {
     result.push(result_in);
     console.log(date);
   }
-
+  
   return result;
 }
