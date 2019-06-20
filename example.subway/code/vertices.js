@@ -1,0 +1,321 @@
+module.exports = [{
+  "station_nm": "간석",
+  "line_num": "1",
+  "station_cd": "1816"
+}, {
+  "station_nm": "도원",
+  "line_num": "1",
+  "station_cd": "1817"
+}, {
+  "station_nm": "도화",
+  "line_num": "1",
+  "station_cd": "1823"
+}, {
+  "station_nm": "동암",
+  "line_num": "1",
+  "station_cd": "1808"
+}, {
+  "station_nm": "동인천",
+  "line_num": "1",
+  "station_cd": "1811"
+}, {
+  "station_nm": "백운",
+  "line_num": "1",
+  "station_cd": "1807"
+}, {
+  "station_nm": "부평",
+  "line_num": "1",
+  "station_cd": "1806"
+}, {
+  "station_nm": "인천",
+  "line_num": "1",
+  "station_cd": "1812"
+}, {
+  "station_nm": "제물포",
+  "line_num": "1",
+  "station_cd": "1810"
+}, {
+  "station_nm": "주안",
+  "line_num": "1",
+  "station_cd": "1809"
+}, {
+  "station_nm": "간석오거리",
+  "line_num": "I",
+  "station_cd": "3123"
+}, {
+  "station_nm": "갈산",
+  "line_num": "I",
+  "station_cd": "3117"
+}, {
+  "station_nm": "경인교대입구",
+  "line_num": "I",
+  "station_cd": "3115"
+}, {
+  "station_nm": "계산",
+  "line_num": "I",
+  "station_cd": "3114"
+}, {
+  "station_nm": "계양",
+  "line_num": "I",
+  "station_cd": "3110"
+}, {
+  "station_nm": "국제업무지구",
+  "line_num": "I",
+  "station_cd": "3138"
+}, {
+  "station_nm": "귤현",
+  "line_num": "I",
+  "station_cd": "3111"
+}, {
+  "station_nm": "동막",
+  "line_num": "I",
+  "station_cd": "3132"
+}, {
+  "station_nm": "동수",
+  "line_num": "I",
+  "station_cd": "3121"
+}, {
+  "station_nm": "동춘",
+  "line_num": "I",
+  "station_cd": "3131"
+}, {
+  "station_nm": "문학경기장",
+  "line_num": "I",
+  "station_cd": "3127"
+}, {
+  "station_nm": "박촌",
+  "line_num": "I",
+  "station_cd": "3112"
+}, {
+  "station_nm": "부평",
+  "line_num": "I",
+  "station_cd": "3120"
+}, {
+  "station_nm": "부평구청",
+  "line_num": "I",
+  "station_cd": "3118"
+}, {
+  "station_nm": "부평삼거리",
+  "line_num": "I",
+  "station_cd": "3122"
+}, {
+  "station_nm": "부평시장",
+  "line_num": "I",
+  "station_cd": "3119"
+}, {
+  "station_nm": "선학",
+  "line_num": "I",
+  "station_cd": "3128"
+}, {
+  "station_nm": "센트럴파크",
+  "line_num": "I",
+  "station_cd": "3137"
+}, {
+  "station_nm": "신연수",
+  "line_num": "I",
+  "station_cd": "3129"
+}, {
+  "station_nm": "예술회관",
+  "line_num": "I",
+  "station_cd": "3125"
+}, {
+  "station_nm": "원인재",
+  "line_num": "I",
+  "station_cd": "3130"
+}, {
+  "station_nm": "인천대입구",
+  "line_num": "I",
+  "station_cd": "3136"
+}, {
+  "station_nm": "인천시청",
+  "line_num": "I",
+  "station_cd": "3124"
+}, {
+  "station_nm": "인천터미널",
+  "line_num": "I",
+  "station_cd": "3126"
+}, {
+  "station_nm": "임학",
+  "line_num": "I",
+  "station_cd": "3113"
+}, {
+  "station_nm": "작전",
+  "line_num": "I",
+  "station_cd": "3116"
+}, {
+  "station_nm": "지식정보단지",
+  "line_num": "I",
+  "station_cd": "3135"
+}, {
+  "station_nm": "캠퍼스타운",
+  "line_num": "I",
+  "station_cd": "3133"
+}, {
+  "station_nm": "테크노파크",
+  "line_num": "I",
+  "station_cd": "3134"
+}, {
+  "station_nm": "가재울",
+  "line_num": "I2",
+  "station_cd": "3216"
+}, {
+  "station_nm": "가정",
+  "line_num": "I2",
+  "station_cd": "3211"
+}, {
+  "station_nm": "가정중앙시장",
+  "line_num": "I2",
+  "station_cd": "3212"
+}, {
+  "station_nm": "검단사거리",
+  "line_num": "I2",
+  "station_cd": "3203"
+}, {
+  "station_nm": "검단오류",
+  "line_num": "I2",
+  "station_cd": "3201"
+}, {
+  "station_nm": "검바위",
+  "line_num": "I2",
+  "station_cd": "3208"
+}, {
+  "station_nm": "검암",
+  "line_num": "I2",
+  "station_cd": "3207"
+}, {
+  "station_nm": "남동구청",
+  "line_num": "I2",
+  "station_cd": "3225"
+}, {
+  "station_nm": "독정",
+  "line_num": "I2",
+  "station_cd": "3206"
+}, {
+  "station_nm": "마전",
+  "line_num": "I2",
+  "station_cd": "3204"
+}, {
+  "station_nm": "만수",
+  "line_num": "I2",
+  "station_cd": "3224"
+}, {
+  "station_nm": "모래내시장",
+  "line_num": "I2",
+  "station_cd": "3223"
+}, {
+  "station_nm": "서구청",
+  "line_num": "I2",
+  "station_cd": "3210"
+}, {
+  "station_nm": "서부여성회관",
+  "line_num": "I2",
+  "station_cd": "3214"
+}, {
+  "station_nm": "석남",
+  "line_num": "I2",
+  "station_cd": "3213"
+}, {
+  "station_nm": "석바위시장",
+  "line_num": "I2",
+  "station_cd": "3220"
+}, {
+  "station_nm": "석천사거리",
+  "line_num": "I2",
+  "station_cd": "3222"
+}, {
+  "station_nm": "시민공원",
+  "line_num": "I2",
+  "station_cd": "3219"
+}, {
+  "station_nm": "아시아드경기장",
+  "line_num": "I2",
+  "station_cd": "3209"
+}, {
+  "station_nm": "완정",
+  "line_num": "I2",
+  "station_cd": "3205"
+}, {
+  "station_nm": "왕길",
+  "line_num": "I2",
+  "station_cd": "3202"
+}, {
+  "station_nm": "운연",
+  "line_num": "I2",
+  "station_cd": "3227"
+}, {
+  "station_nm": "인천가좌",
+  "line_num": "I2",
+  "station_cd": "3215"
+}, {
+  "station_nm": "인천대공원",
+  "line_num": "I2",
+  "station_cd": "3226"
+}, {
+  "station_nm": "인천시청",
+  "line_num": "I2",
+  "station_cd": "3221"
+}, {
+  "station_nm": "주안",
+  "line_num": "I2",
+  "station_cd": "3218"
+}, {
+  "station_nm": "주안국가산단",
+  "line_num": "I2",
+  "station_cd": "3217"
+}, {
+  "station_nm": "남동인더스파크",
+  "line_num": "SU",
+  "station_cd": "1883"
+}, {
+  "station_nm": "달월",
+  "line_num": "SU",
+  "station_cd": "1878"
+}, {
+  "station_nm": "소래포구",
+  "line_num": "SU",
+  "station_cd": "1880"
+}, {
+  "station_nm": "송도",
+  "line_num": "SU",
+  "station_cd": "1886"
+}, {
+  "station_nm": "숭의",
+  "line_num": "SU",
+  "station_cd": "1889"
+}, {
+  "station_nm": "신포",
+  "line_num": "SU",
+  "station_cd": "1890"
+}, {
+  "station_nm": "연수",
+  "line_num": "SU",
+  "station_cd": "1885"
+}, {
+  "station_nm": "오이도",
+  "line_num": "SU",
+  "station_cd": "1800"
+}, {
+  "station_nm": "원인재",
+  "line_num": "SU",
+  "station_cd": "1884"
+}, {
+  "station_nm": "월곶",
+  "line_num": "SU",
+  "station_cd": "1879"
+}, {
+  "station_nm": "인천",
+  "line_num": "SU",
+  "station_cd": "1891"
+}, {
+  "station_nm": "인천논현",
+  "line_num": "SU",
+  "station_cd": "1881"
+}, {
+  "station_nm": "인하대",
+  "line_num": "SU",
+  "station_cd": "1888"
+}, {
+  "station_nm": "호구포",
+  "line_num": "SU",
+  "station_cd": "1882"
+}]

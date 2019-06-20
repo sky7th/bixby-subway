@@ -1,0 +1,29 @@
+result-view {
+  match: Subway(this)
+
+  message {
+    template ("지하철 정보를 가져왔어요 !")
+  }
+
+  render {
+    if(size(this) == 1){
+      layout{
+        layout-macro (SubwayInfo){
+          param(info){
+            expression (this)
+          }
+        }
+      }
+    } else {
+      list-of (this){
+        where-each (item){
+          layout-macro (SubwayList){
+            param(subway){
+              expression (item)
+            }
+          }
+        }
+      }
+    }
+  }
+}

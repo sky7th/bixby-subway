@@ -1,0 +1,54 @@
+layout-macro-def (SubwayInfo) {
+  params {
+    param (info) {
+      type (Subway)
+      min (Required) max (One)
+    }
+  }
+ 
+  content {
+    section {
+      content {
+        partitioned {
+          content {
+            title-area {
+              halign (Center)
+              slot1 {
+                text {value {template ("#{value(info.line)}")} style (Title_M)}
+              }
+            }
+            hbox {
+              content {
+                vbox {
+                  halign (Center)
+                  valign (Middle)
+                  content {
+                    text {value {template ("#{value(info.startTime)}")} style (Detail_L_Soft)}
+                  }
+                }
+                vbox {
+                  halign (Center)
+                  valign (Middle)
+                  content {
+                    for-each (info.path) {
+                      as (attribute) {
+                        text {value ("#{value(attribute)}") style (Detail_L)}
+                      }
+                    }
+                  }
+                }
+                vbox {
+                  halign (Center)
+                  valign (Middle)
+                  content {
+                    text {value {template ("#{value(info.endTime)}")} style (Detail_L_Soft)}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

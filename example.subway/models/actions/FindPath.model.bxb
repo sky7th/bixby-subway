@@ -1,0 +1,19 @@
+// 시작역과 종착역을 input으로 받아와 경로와 시간을 알려준다.
+// 인천대입구역에서 계양역 어떻게 가?
+
+
+action (FindPath) {
+  description (지하철 경로를 알려주는 액션)
+  collect {
+    input (startPoint) {
+      type (StartPoint)
+      min (Required) max (One)
+    }
+     input (endPoint) {
+      type (EndPoint)
+      min (Required) max (One)
+    }
+  }
+  type(Search)
+  output (Subway)
+}
