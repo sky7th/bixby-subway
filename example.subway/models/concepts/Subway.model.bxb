@@ -24,4 +24,12 @@ structure (Subway) {
     type (EndStation)
     min (Required) max (Many)
   }
+  property (totalTime) {
+    type (TotalTime)
+    min (Required) max (One)
+  }
+  property (imgLine) {
+    type (ImgLine)
+    min (Required) max (One)
+  }
 }

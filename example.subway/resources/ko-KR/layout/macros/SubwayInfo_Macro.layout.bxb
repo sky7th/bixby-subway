@@ -14,7 +14,11 @@ layout-macro-def (SubwayInfo) {
             title-area {
               halign (Center)
               slot1 {
-                text {value {template ("#{value(info.line)}")} style (Title_M)}
+                single-line {
+                  image {url ("/images/#{value(info.imgLine)}.png") shape (Circle) background-color (Transparent) style (Title_XXL)}
+                }
+  //              text(" ")
+  //              text {value {template ("#{value(info.line)}")} style (Title_M)}
               }
             }
             hbox {
@@ -30,6 +34,7 @@ layout-macro-def (SubwayInfo) {
                   halign (Center)
                   valign (Middle)
                   content {
+                    text(" ") text(" ")
                     for-each (info.path) {
                       as (attribute) {
                         text {value ("#{value(attribute)}") style (Detail_L)}

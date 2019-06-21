@@ -327,75 +327,76 @@ module.exports.function = function findPath(startPoint, endPoint) {
   }
 
   function changeLineName(line) {
+    var res = [[],[],[],[],[]];
     for (let i = 0; i < line.length; i++) {
       for (let j = 0; j < line[i].length; j++) {
         switch (line[i][j]) {
           case '1':
-            line[i][j] = '1호선';
+            res[i][j] = '1호선';
             break;
           case '2':
-            line[i][j] = '2호선';
+            res[i][j] = '2호선';
             break;
           case '3':
-            line[i][j] = '3호선';
+            res[i][j] = '3호선';
             break;
           case '4':
-            line[i][j] = '4호선';
+            res[i][j] = '4호선';
             break;
           case '5':
-            line[i][j] = '5호선';
+            res[i][j] = '5호선';
             break;
           case '6':
-            line[i][j] = '6호선';
+            res[i][j] = '6호선';
             break;
           case '7':
-            line[i][j] = '7호선';
+            res[i][j] = '7호선';
             break;
           case '8':
-            line[i][j] = '8호선';
+            res[i][j] = '8호선';
             break;
           case '9':
-            line[i][j] = '9호선';
+            res[i][j] = '9호선';
             break;
           case 'A':
-            line[i][j] = '공항철도';
+            res[i][j] = '공항철도';
             break;
           case 'B':
-            line[i][j] = '분당선';
+            res[i][j] = '분당선';
             break;
           case 'E':
-            line[i][j] = '용인경전철';
+            res[i][j] = '용인경전철';
             break;
           case 'G':
-            line[i][j] = '경춘선';
+            res[i][j] = '경춘선';
             break;
           case 'I':
-            line[i][j] = '인천1호선';
+            res[i][j] = '인천1호선';
             break;
           case 'I2':
-            line[i][j] = '인천2호선';
+            res[i][j] = '인천2호선';
             break;
           case 'K':
-            line[i][j] = '경의선';
+            res[i][j] = '경의선';
             break;
           case 'KK':
-            line[i][j] = '경강선';
+            res[i][j] = '경강선';
             break;
           case 'S':
-            line[i][j] = '신분당선';
+            res[i][j] = '신분당선';
             break;
           case 'SU':
-            line[i][j] = '수인선';
+            res[i][j] = '수인선';
             break;
           case 'U':
-            line[i][j] = '의정부경전철';
+            res[i][j] = '의정부경전철';
             break;
           case 'UI':
-            line[i][j] = '우이신설경전철';
+            res[i][j] = '우이신설경전철';
         }
       }
     }
-    return line;
+    return res;
   }
 
   function getStationTime(station, day, arrow, nowMinTime, line) {
@@ -480,12 +481,9 @@ module.exports.function = function findPath(startPoint, endPoint) {
   function getResultTime(start, end, line, times, j, beforeTime) {
     var res = times;
     for (let i = 1; i < 3; i++) {
-      var startTime = getStationTime(start, nowDay(setDay(date.getDay())), i, (j == 0) ? nowMinTime : changeTime(beforeTime), line);
+      var startTime = getStationTime(start, nowDay(setDay(date.getDay())), i, (j == 0) ? nowMinTime : changeTime(beforeTime)+1, line);
       var endTime = findSameTrain(end, nowDay(setDay(date.getDay())), i, changeTime(startTime.resultTime), startTime.resultTrain);
       if (endTime != false) {
-        //          console.log(startTime);
-        //          console.log(endTime);
-        //         console.log('\n');
         res[j].push(startTime.resultTime);
         res[j].push(endTime);
         return res;
@@ -531,8 +529,8 @@ module.exports.function = function findPath(startPoint, endPoint) {
   let res = splitPath(path);
   let split = res.resultPath;
   let split2 = split;
-  let line = res.resultLine;
-  let korLine = changeLineName(line)
+  let engline = res.resultLine;
+  let korLine = changeLineName(engline);
   let setTime = splitTime(path);
   let time = setTime.result;
   let totalTime = setTime.totalTime;
@@ -541,15 +539,16 @@ module.exports.function = function findPath(startPoint, endPoint) {
 
   for (let i = 0; i < split2.length; i++) {
     var result_in = {};
+    result_in['imgLine'] = engline[i][0];
     result_in['line'] = korLine[i][0];
     result_in['startTime'] = noSecond(minusTime(changeTime(time[i][0])));
     result_in['path'] = split2[i];
     result_in['endTime'] = noSecond(noMinusTime(changeTime(time[i][1])));
     result_in['startStation'] = split2[i][0];
     result_in['endStation'] = split2[i][split2[i].length - 1];
+    result_in['totalTime'] = totalTime;
     result.push(result_in);
-    console.log(date);
   }
-  
+  console.log(nowDay(setDay(date.getDay())));
   return result;
 }
