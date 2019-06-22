@@ -14,7 +14,7 @@ result-view {
           }
         }
       }
-    } else {
+    } else { 
       list-of (this){
         where-each (item){
           layout-macro (SubwayList){

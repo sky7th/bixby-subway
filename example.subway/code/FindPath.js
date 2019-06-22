@@ -416,6 +416,7 @@ module.exports.function = function findPath(startPoint, endPoint) {
       var arriveTime = changeTime(timeSchedule[i].ARRIVETIME);
       var leftTime = changeTime(timeSchedule[i].LEFTTIME);
       var apiLine = timeSchedule[i].LINE_NUM;
+      var fastLine = timeSchedule[i].EXPRESS_YN;
 
       if (leftTime > nowMinTime && matchLine(line, apiLine) && leftTime != 0) {
         let resultTime = timeSchedule[i].LEFTTIME;
@@ -423,11 +424,12 @@ module.exports.function = function findPath(startPoint, endPoint) {
 
         return {
           resultTime: resultTime,
-          resultTrain: resultTrain
+          resultTrain: resultTrain,
+          fastLine: fastLine
         };
       }
     }
-    return null;
+    return false;
   }
 
   function findSameTrain(station, day, arrow, time, train) {
@@ -478,15 +480,20 @@ module.exports.function = function findPath(startPoint, endPoint) {
     }
   }
   
-  function getResultTime(start, end, line, times, j, beforeTime) {
+  function getResultTime(start, end, line, times, j, beforeTime, resFastLine) {
     var res = times;
     for (let i = 1; i < 3; i++) {
       var startTime = getStationTime(start, nowDay(setDay(date.getDay())), i, (j == 0) ? nowMinTime : changeTime(beforeTime)+1, line);
+      if (startTime == false) continue;
       var endTime = findSameTrain(end, nowDay(setDay(date.getDay())), i, changeTime(startTime.resultTime), startTime.resultTrain);
       if (endTime != false) {
         res[j].push(startTime.resultTime);
         res[j].push(endTime);
-        return res;
+        resFastLine[j].push(startTime.fastLine);
+        return {
+          res: res,
+          resFastLine: resFastLine
+        };
       };
     }
   }
@@ -502,6 +509,7 @@ module.exports.function = function findPath(startPoint, endPoint) {
       [],
       []
     ];
+    var resFastLine = [[],[],[],[],[]];
 
     for (let i = 0; i < resultLine.length; i++) {
       var startStationCode = matchStation(resultPath[i][0], resultLine[i][0]);
@@ -512,7 +520,7 @@ module.exports.function = function findPath(startPoint, endPoint) {
       else
         beforeTime = times[i - 1][1];
 
-      var result = getResultTime(startStationCode, endStationCode, resultLine[i][0], times, i, beforeTime);
+      var result = getResultTime(startStationCode, endStationCode, resultLine[i][0], times, i, beforeTime, resFastLine);
     }
     let totalTime = changeTime(times[resultLine.length - 1][1]) - changeTime(times[0][0]);
     //  setTimeout(() => {console.log(result)}, 2000);
@@ -532,7 +540,8 @@ module.exports.function = function findPath(startPoint, endPoint) {
   let engline = res.resultLine;
   let korLine = changeLineName(engline);
   let setTime = splitTime(path);
-  let time = setTime.result;
+  let time = setTime.result.res;
+  let fastLine = setTime.result.resFastLine;
   let totalTime = setTime.totalTime;
 
   var result = [];
@@ -544,8 +553,14 @@ module.exports.function = function findPath(startPoint, endPoint) {
     result_in['startTime'] = noSecond(minusTime(changeTime(time[i][0])));
     result_in['path'] = split2[i];
     result_in['endTime'] = noSecond(noMinusTime(changeTime(time[i][1])));
-    result_in['startStation'] = split2[i][0];
-    result_in['endStation'] = split2[i][split2[i].length - 1];
+    if (fastLine[i][0] == 'G') {
+      result_in['startStation'] = split2[i][0];
+      result_in['endStation'] = split2[i][split2[i].length-1];
+    }
+    else {
+      result_in['startStation'] = split2[i][0] + '(급)';
+      result_in['endStation'] = split2[i][split2[i].length-1] + '(급)';
+    } 
     result_in['totalTime'] = totalTime;
     result.push(result_in);
   }
