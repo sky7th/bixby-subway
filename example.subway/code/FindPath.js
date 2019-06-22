@@ -6,100 +6,154 @@ module.exports.function = function findPath(startPoint, endPoint) {
   const graphData = require("./station.js");
   const stationData = require("./vertices.js");
 
-  function PriorityQueue() {
-    this._nodes = [];
-
-    this.enqueue = function (priority, key) {
-      this._nodes.push({
-        key: key,
-        priority: priority
-      });
-      this.sort();
-    };
-    this.dequeue = function () {
-      return this._nodes.shift().key;
-    };
-    this.sort = function () {
-      this._nodes.sort(function (a, b) {
-        return a.priority - b.priority;
-      });
-    };
-    this.isEmpty = function () {
-      return !this._nodes.length;
-    };
-  }
-
-
-  function Graph() {
-    var INFINITY = 1 / 0;
-    this.vertices = {};
-
-    this.addVertex = function (graph) {
-      this.vertices = graph;
-    };
-
-    this.shortestPath = function (start, finish) {
-      var nodes = new PriorityQueue(),
-        distances = {},
-        previous = {},
-        path = [],
-        smallest, vertex, neighbor, alt;
-
-      for (vertex in this.vertices) {
-        if (vertex === start) {
-          distances[vertex] = 0;
-          nodes.enqueue(0, vertex);
-        } else {
-          distances[vertex] = INFINITY;
-          nodes.enqueue(INFINITY, vertex);
-        }
-
-        previous[vertex] = null;
+  var Graph = (function (undefined) {
+    
+    var extractKeys = function (obj) {
+      var keys = [],
+        key;
+      for (key in obj) {
+        Object.prototype.hasOwnProperty.call(obj, key) && keys.push(key);
       }
-
-      while (!nodes.isEmpty()) {
-        smallest = nodes.dequeue();
-
-        if (smallest === finish) {
-          path = [];
-
-          while (previous[smallest]) {
-            path.push(smallest);
-            smallest = previous[smallest];
-          }
-
-          break;
-        }
-
-        if (!smallest || distances[smallest] === INFINITY) {
-          continue;
-        }
-
-        for (neighbor in this.vertices[smallest]) {
-          alt = distances[smallest] + this.vertices[smallest][neighbor];
-
-          if (alt < distances[neighbor]) {
-            distances[neighbor] = alt;
-            previous[neighbor] = smallest;
-
-            nodes.enqueue(alt, neighbor);
-          }
-        }
-      }
-
-      return path;
-    };
-  }
-  /*
-    function pathTime(path) {
-      let station = makeStation();
-      var time = 0;
-      for (let i = 0; i < path.length - 1; i++) {
-        time += station[path[i]]['time'][path[i + 1]];
-      }
-      return time;
+      return keys;
     }
-  */
+
+    var sorter = function (a, b) {
+      return parseFloat(a) - parseFloat(b);
+    }
+
+    var findPaths = function (map, start, end, infinity) {
+      infinity = infinity || Infinity;
+
+      var costs = {},
+        open = {
+          '0': [start]
+        },
+        predecessors = {},
+        keys;
+
+      var addToOpen = function (cost, vertex) {
+        var key = "" + cost;
+        if (!open[key]) open[key] = [];
+        open[key].push(vertex);
+      }
+
+      costs[start] = 0;
+
+      while (open) {
+        if (!(keys = extractKeys(open)).length) break;
+
+        keys.sort(sorter);
+
+        var key = keys[0],
+          bucket = open[key],
+          node = bucket.shift(),
+          currentCost = parseFloat(key),
+          adjacentNodes = map[node] || {};
+
+        if (!bucket.length) delete open[key];
+
+        for (var vertex in adjacentNodes) {
+          if (Object.prototype.hasOwnProperty.call(adjacentNodes, vertex)) {
+            var cost = adjacentNodes[vertex],
+              totalCost = cost + currentCost,
+              vertexCost = costs[vertex];
+
+            if ((vertexCost === undefined) || (vertexCost > totalCost)) {
+              costs[vertex] = totalCost;
+              addToOpen(totalCost, vertex);
+              predecessors[vertex] = node;
+            }
+          }
+        }
+      }
+
+      if (costs[end] === undefined) {
+        return null;
+      } else {
+        return predecessors;
+      }
+
+    }
+
+    var extractShortest = function (predecessors, end) {
+      var nodes = [],
+        u = end;
+
+      while (u !== undefined) {
+        nodes.push(u);
+        u = predecessors[u];
+      }
+
+      nodes.reverse();
+      return nodes;
+    }
+
+    var findShortestPath = function (map, nodes) {
+      var start = nodes.shift(),
+        end,
+        predecessors,
+        path = [],
+        shortest;
+
+      while (nodes.length) {
+        end = nodes.shift();
+        predecessors = findPaths(map, start, end);
+
+        if (predecessors) {
+          shortest = extractShortest(predecessors, end);
+          if (nodes.length) {
+            path.push.apply(path, shortest.slice(0, -1));
+          } else {
+            return path.concat(shortest);
+          }
+        } else {
+          return null;
+        }
+
+        start = end;
+      }
+    }
+
+    var toArray = function (list, offset) {
+      try {
+        return Array.prototype.slice.call(list, offset);
+      } catch (e) {
+        var a = [];
+        for (var i = offset || 0, l = list.length; i < l; ++i) {
+          a.push(list[i]);
+        }
+        return a;
+      }
+    }
+
+    var Graph = function (map) {
+      this.map = map;
+    }
+
+    Graph.prototype.findShortestPath = function (start, end) {
+      if (Object.prototype.toString.call(start) === '[object Array]') {
+        return findShortestPath(this.map, start);
+      } else if (arguments.length === 2) {
+        return findShortestPath(this.map, [start, end]);
+      } else {
+        return findShortestPath(this.map, toArray(arguments));
+      }
+    }
+
+    Graph.findShortestPath = function (map, start, end) {
+      if (Object.prototype.toString.call(start) === '[object Array]') {
+        return findShortestPath(map, start);
+      } else if (arguments.length === 3) {
+        return findShortestPath(map, [start, end]);
+      } else {
+        return findShortestPath(map, toArray(arguments, 1));
+      }
+    }
+
+    return Graph;
+
+  })();
+
   function matchLineBeforeNext(beforeStation, nowStation, nextStation) {
     var beforeLine = new Array;
     var nowLine = new Array;
@@ -214,7 +268,7 @@ module.exports.function = function findPath(startPoint, endPoint) {
   var date = new Date();
   var utcTime = Number(date.getHours()) * 60 + Number(date.getMinutes());
   var nowMinTime = (utcTime + 540) % 1440;
-  
+
   function changeTime(time) {
     var minTime = Number(time.substr(0, 2)) * 60 + Number(time.substr(3, 2));
     return minTime;
@@ -239,8 +293,7 @@ module.exports.function = function findPath(startPoint, endPoint) {
     var res = '';
     if (min < 10) {
       res = hour + ':0' + min;
-    }
-    else
+    } else
       res = hour + ':' + min;
 
     return res;
@@ -327,7 +380,13 @@ module.exports.function = function findPath(startPoint, endPoint) {
   }
 
   function changeLineName(line) {
-    var res = [[],[],[],[],[]];
+    var res = [
+      [],
+      [],
+      [],
+      [],
+      []
+    ];
     for (let i = 0; i < line.length; i++) {
       for (let j = 0; j < line[i].length; j++) {
         switch (line[i][j]) {
@@ -464,7 +523,7 @@ module.exports.function = function findPath(startPoint, endPoint) {
     }
     return day;
   }
-  
+
   function nowDay(day) {
     switch (day) {
       case 1:
@@ -479,11 +538,11 @@ module.exports.function = function findPath(startPoint, endPoint) {
         return '3';
     }
   }
-  
+
   function getResultTime(start, end, line, times, j, beforeTime, resFastLine) {
     var res = times;
     for (let i = 1; i < 3; i++) {
-      var startTime = getStationTime(start, nowDay(setDay(date.getDay())), i, (j == 0) ? nowMinTime : changeTime(beforeTime)+1, line);
+      var startTime = getStationTime(start, nowDay(setDay(date.getDay())), i, (j == 0) ? nowMinTime : changeTime(beforeTime) + 1, line);
       if (startTime == false) continue;
       var endTime = findSameTrain(end, nowDay(setDay(date.getDay())), i, changeTime(startTime.resultTime), startTime.resultTrain);
       if (endTime != false) {
@@ -494,7 +553,7 @@ module.exports.function = function findPath(startPoint, endPoint) {
           res: res,
           resFastLine: resFastLine
         };
-      };
+      }
     }
   }
 
@@ -509,7 +568,13 @@ module.exports.function = function findPath(startPoint, endPoint) {
       [],
       []
     ];
-    var resFastLine = [[],[],[],[],[]];
+    var resFastLine = [
+      [],
+      [],
+      [],
+      [],
+      []
+    ];
 
     for (let i = 0; i < resultLine.length; i++) {
       var startStationCode = matchStation(resultPath[i][0], resultLine[i][0]);
@@ -530,10 +595,8 @@ module.exports.function = function findPath(startPoint, endPoint) {
     };
   }
 
-  var g = new Graph();
-  g.addVertex(graphData);
-
-  let path = g.shortestPath(String(startPoint), String(endPoint)).concat([String(startPoint)]).reverse();
+  var graph = new Graph(graphData);
+  let path = graph.findShortestPath(String(startPoint), String(endPoint));
   let res = splitPath(path);
   let split = res.resultPath;
   let split2 = split;
@@ -555,12 +618,11 @@ module.exports.function = function findPath(startPoint, endPoint) {
     result_in['endTime'] = noSecond(noMinusTime(changeTime(time[i][1])));
     if (fastLine[i][0] == 'G') {
       result_in['startStation'] = split2[i][0];
-      result_in['endStation'] = split2[i][split2[i].length-1];
-    }
-    else {
+      result_in['endStation'] = split2[i][split2[i].length - 1];
+    } else {
       result_in['startStation'] = split2[i][0] + '(급)';
-      result_in['endStation'] = split2[i][split2[i].length-1] + '(급)';
-    } 
+      result_in['endStation'] = split2[i][split2[i].length - 1] + '(급)';
+    }
     result_in['totalTime'] = totalTime;
     result.push(result_in);
   }
