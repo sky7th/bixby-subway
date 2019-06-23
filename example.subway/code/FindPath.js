@@ -516,13 +516,13 @@ module.exports.function = function findPath(startPoint, endPoint) {
 
   function setDay(day) {
     if (utcTime + 540 >= 1440) {
-      if (day >= 7)
-        day = (day + 1) % 7;
+      if (day == 6)
+        day = 0;
       else
         day = day + 1;
     }
     return day;
-  }
+  } 
 
   function nowDay(day) {
     switch (day) {
@@ -534,13 +534,14 @@ module.exports.function = function findPath(startPoint, endPoint) {
         return '1';
       case 6:
         return '2';
-      case 7:
+      case 0:
         return '3';
     }
   }
 
-  function getResultTime(start, end, line, times, j, beforeTime, resFastLine) {
+  function getResultTime(start, end, line, times, j, beforeTime, resFastLine, nowMinTime) {
     var res = times;
+    while(1){
     for (let i = 1; i < 3; i++) {
       var startTime = getStationTime(start, nowDay(setDay(date.getDay())), i, (j == 0) ? nowMinTime : changeTime(beforeTime) + 1, line);
       if (startTime == false) continue;
@@ -554,7 +555,9 @@ module.exports.function = function findPath(startPoint, endPoint) {
           resFastLine: resFastLine
         };
       }
+      nowMinTime++;
     }
+  }
   }
 
   function splitTime(path) {
@@ -585,7 +588,7 @@ module.exports.function = function findPath(startPoint, endPoint) {
       else
         beforeTime = times[i - 1][1];
 
-      var result = getResultTime(startStationCode, endStationCode, resultLine[i][0], times, i, beforeTime, resFastLine);
+      var result = getResultTime(startStationCode, endStationCode, resultLine[i][0], times, i, beforeTime, resFastLine, nowMinTime);
     }
     let totalTime = changeTime(times[resultLine.length - 1][1]) - changeTime(times[0][0]);
     //  setTimeout(() => {console.log(result)}, 2000);
@@ -626,6 +629,5 @@ module.exports.function = function findPath(startPoint, endPoint) {
     result_in['totalTime'] = totalTime;
     result.push(result_in);
   }
-  console.log(nowDay(setDay(date.getDay())));
   return result;
 }
