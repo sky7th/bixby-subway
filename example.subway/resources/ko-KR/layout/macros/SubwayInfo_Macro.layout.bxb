@@ -15,7 +15,7 @@ layout-macro-def (SubwayInfo) {
               halign (Center)
               slot1 {
                 single-line {
-                  image {url ("/images/#{value(info.imgLine)}.png") shape (Circle) background-color (Transparent) style (Title_XXL)}
+                  image {url ("/images/#{value(info.imgLine)}.PNG") shape (Circle) background-color (Transparent) style (Title_XXL)}
                 }
   //              text(" ")
   //              text {value {template ("#{value(info.line)}")} style (Title_M)}

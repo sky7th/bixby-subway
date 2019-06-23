@@ -34,7 +34,7 @@ layout-macro-def (SubwayList) {
               content {
                 text (" ")text (" ")
                 single-line {
-                  image {url ("/images/#{value(subway.imgLine)}.png") shape (Circle) background-color (Transparent) style (Title_L)}
+                  image {url ("/images/#{value(subway.imgLine)}.PNG") shape (Circle) background-color (Transparent) style (Title_XL)}
                 }
                 text (" ")text (" ")
           //      text {value ("#{value(subway.line)}") style (Detail_M)}

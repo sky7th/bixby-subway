@@ -1,5 +1,5 @@
 capsule {
-  id (example.subway)
+  id (pin_com.subway)
   version (0.1.0)
   format (3)
   targets {

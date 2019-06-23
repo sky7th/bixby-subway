@@ -1,13 +1,18 @@
-module.exports.function = function findPath(startPoint, endPoint) {
+module.exports.function = function findPath(startPoint, endPoint, wishTime, mak) {
+  const config = require('config');
+  const baseURL = config.get("baseUrl");
+  const console = require('console');
+  const http = require('http');
+  const fail = require('fail');
+
   const api = '59726d4b58736b79343548564e7141';
   const service = 'SearchSTNTimeTableByIDService';
 
-  const console = require('console')
   const graphData = require("./station.js");
   const stationData = require("./vertices.js");
 
   var Graph = (function (undefined) {
-    
+
     var extractKeys = function (obj) {
       var keys = [],
         key;
@@ -265,8 +270,9 @@ module.exports.function = function findPath(startPoint, endPoint) {
     };
   }
 
+  var plusTime = typeof (wishTime) === 'undefined' ? 0 : wishTime;
   var date = new Date();
-  var utcTime = Number(date.getHours()) * 60 + Number(date.getMinutes());
+  var utcTime = Number(date.getHours()) * 60 + Number(date.getMinutes()) + plusTime;
   var nowMinTime = (utcTime + 540) % 1440;
 
   function changeTime(time) {
@@ -458,29 +464,17 @@ module.exports.function = function findPath(startPoint, endPoint) {
     return res;
   }
 
-  function getStationTime(station, day, arrow, nowMinTime, line) {
-    const config = require('config');
-    const baseURL = config.get("baseUrl");
-    const console = require('console');
-    const http = require('http');
-    const fail = require('fail');
-    let url = baseURL + api + '/json/' + service + '/1/800/' + station + '/' + day + '/' + arrow + '/';
-    const json = http.getUrl(url, {
-      format: "json",
-      cacheTime: 0,
-      returnHeaders: true
-    });
-    const timeSchedule = json.parsed.SearchSTNTimeTableByIDService.row;
-    for (let i = 0; i < timeSchedule.length; i++) {
-      var arriveTime = changeTime(timeSchedule[i].ARRIVETIME);
-      var leftTime = changeTime(timeSchedule[i].LEFTTIME);
-      var apiLine = timeSchedule[i].LINE_NUM;
-      var fastLine = timeSchedule[i].EXPRESS_YN;
+  function getStationTime(j, arrow, nowMinTime, line) {
+
+    for (let i = 0; i < timeSchedule[j][0][arrow - 1].length; i++) {
+      var arriveTime = changeTime(timeSchedule[j][0][arrow - 1][i].ARRIVETIME);
+      var leftTime = changeTime(timeSchedule[j][0][arrow - 1][i].LEFTTIME);
+      var apiLine = timeSchedule[j][0][arrow - 1][i].LINE_NUM;
+      var fastLine = timeSchedule[j][0][arrow - 1][i].EXPRESS_YN;
 
       if (leftTime > nowMinTime && matchLine(line, apiLine) && leftTime != 0) {
-        let resultTime = timeSchedule[i].LEFTTIME;
-        let resultTrain = timeSchedule[i].TRAIN_NO;
-
+        let resultTime = timeSchedule[j][0][arrow - 1][i].LEFTTIME;
+        let resultTrain = timeSchedule[j][0][arrow - 1][i].TRAIN_NO;
         return {
           resultTime: resultTime,
           resultTrain: resultTrain,
@@ -491,23 +485,12 @@ module.exports.function = function findPath(startPoint, endPoint) {
     return false;
   }
 
-  function findSameTrain(station, day, arrow, time, train) {
-    const config = require('config');
-    const baseURL = config.get("baseUrl");
-    const console = require('console');
-    const http = require('http');
-    const fail = require('fail');
-    let url = baseURL + api + '/json/' + service + '/1/800/' + station + '/' + day + '/' + arrow + '/';
-    const json = http.getUrl(url, {
-      format: "json",
-      cacheTime: 0,
-      returnHeaders: true
-    });
-    const timeSchedule = json.parsed.SearchSTNTimeTableByIDService.row;
-    for (let i = 0; i < timeSchedule.length; i++) {
-      var arriveTime = changeTime(timeSchedule[i].ARRIVETIME);
-      if (arriveTime > time && timeSchedule[i].TRAIN_NO == train && arriveTime != 0) {
-        resultTime = timeSchedule[i].ARRIVETIME;
+  function findSameTrain(j, arrow, time, train) {
+
+    for (let i = 0; i < timeSchedule[j][1][arrow - 1].length; i++) {
+      var arriveTime = changeTime(timeSchedule[j][1][arrow - 1][i].ARRIVETIME);
+      if (arriveTime > time && timeSchedule[j][1][arrow - 1][i].TRAIN_NO == train && arriveTime != 0) {
+        resultTime = timeSchedule[j][1][arrow - 1][i].ARRIVETIME;
         return resultTime;
       }
     }
@@ -522,7 +505,7 @@ module.exports.function = function findPath(startPoint, endPoint) {
         day = day + 1;
     }
     return day;
-  } 
+  }
 
   function nowDay(day) {
     switch (day) {
@@ -539,25 +522,38 @@ module.exports.function = function findPath(startPoint, endPoint) {
     }
   }
 
-  function getResultTime(start, end, line, times, j, beforeTime, resFastLine, nowMinTime) {
+  function getResultTime(line, times, j, beforeTime, resFastLine, nowMinTime) {
     var res = times;
-    while(1){
-    for (let i = 1; i < 3; i++) {
-      var startTime = getStationTime(start, nowDay(setDay(date.getDay())), i, (j == 0) ? nowMinTime : changeTime(beforeTime) + 1, line);
-      if (startTime == false) continue;
-      var endTime = findSameTrain(end, nowDay(setDay(date.getDay())), i, changeTime(startTime.resultTime), startTime.resultTrain);
-      if (endTime != false) {
-        res[j].push(startTime.resultTime);
-        res[j].push(endTime);
-        resFastLine[j].push(startTime.fastLine);
-        return {
-          res: res,
-          resFastLine: resFastLine
+    while (1) {
+      for (let i = 1; i < 3; i++) {
+        var startTime = getStationTime(j, i, (j == 0) ? nowMinTime : changeTime(beforeTime), line);
+        if (startTime == false) continue;
+        var endTime = findSameTrain(j, i, changeTime(startTime.resultTime), startTime.resultTrain);
+        if (endTime != false) {
+          res[j].push(startTime.resultTime);
+          res[j].push(endTime);
+          resFastLine[j].push(startTime.fastLine);
+          return {
+            res: res,
+            resFastLine: resFastLine
+          };
         };
+        nowMinTime++;
       }
-      nowMinTime++;
     }
   }
+
+  function getStationInfo(station, day, arrow) {
+
+    let url = baseURL + api + '/json/' + service + '/1/800/' + station + '/' + day + '/' + arrow + '/';
+    const json = http.getUrl(url, {
+      format: "json",
+      cacheTime: 0,
+      returnHeaders: true
+    });
+    const timeSchedule = json.parsed.SearchSTNTimeTableByIDService.row;
+
+    return timeSchedule;
   }
 
   function splitTime(path) {
@@ -582,14 +578,25 @@ module.exports.function = function findPath(startPoint, endPoint) {
     for (let i = 0; i < resultLine.length; i++) {
       var startStationCode = matchStation(resultPath[i][0], resultLine[i][0]);
       var endStationCode = matchStation(resultPath[i][resultPath[i].length - 1], resultLine[i][resultLine[i].length - 1]);
+
+
+      for (let a = 0; a <= 1; a++) {
+        timeSchedule[i][0][a] = getStationInfo(startStationCode, nowDay(setDay(date.getDay())), a + 1);
+        timeSchedule[i][1][a] = getStationInfo(endStationCode, nowDay(setDay(date.getDay())), a + 1);
+      }
+    }
+    for (let i = 0; i < resultLine.length; i++) {
+      var startStationCode = matchStation(resultPath[i][0], resultLine[i][0]);
+      var endStationCode = matchStation(resultPath[i][resultPath[i].length - 1], resultLine[i][resultLine[i].length - 1]);
       var beforeTime;
       if (i == 0)
         beforeTime = false;
       else
         beforeTime = times[i - 1][1];
 
-      var result = getResultTime(startStationCode, endStationCode, resultLine[i][0], times, i, beforeTime, resFastLine, nowMinTime);
+      var result = getResultTime(resultLine[i][0], times, i, beforeTime, resFastLine, nowMinTime);
     }
+    console.log(result);
     let totalTime = changeTime(times[resultLine.length - 1][1]) - changeTime(times[0][0]);
     //  setTimeout(() => {console.log(result)}, 2000);
     return {
@@ -597,6 +604,29 @@ module.exports.function = function findPath(startPoint, endPoint) {
       totalTime: totalTime
     };
   }
+
+  var timeSchedule = [
+    [
+      [{}, {}],
+      [{}, {}]
+    ],
+    [
+      [{}, {}],
+      [{}, {}]
+    ],
+    [
+      [{}, {}],
+      [{}, {}]
+    ],
+    [
+      [{}, {}],
+      [{}, {}]
+    ],
+    [
+      [{}, {}],
+      [{}, {}]
+    ]
+  ];
 
   var graph = new Graph(graphData);
   let path = graph.findShortestPath(String(startPoint), String(endPoint));

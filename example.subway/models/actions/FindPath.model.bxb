@@ -13,6 +13,14 @@ action (FindPath) {
       type (EndPoint)
       min (Required) max (One)
     }
+    input (wishTime) {
+      type (WishTime)
+      min (Optional) max (One)
+    }
+    input (mak) {
+      type (Mak)
+      min (Optional) max (One)
+    }
   }
   type(Search)
   output (Subway)
