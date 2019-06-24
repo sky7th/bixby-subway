@@ -17,8 +17,16 @@ layout-macro-def (SubwayInfo) {
                 single-line {
                   image {url ("/images/#{value(info.imgLine)}.PNG") shape (Circle) background-color (Transparent) style (Title_XXL)}
                 }
-  //              text(" ")
-  //              text {value {template ("#{value(info.line)}")} style (Title_M)}
+              }
+              slot2 {
+                single-line {
+                  text (" ")
+                }
+              }
+              slot3 {
+                single-line {
+                  text {value {template ("#{value(info.startStation)}")} style (Title_XS)}
+                }
               }
             }
             hbox {

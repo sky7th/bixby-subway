@@ -1,14 +1,16 @@
 capsule {
   id (pin_com.subway)
-  version (0.1.0)
+  version (0.2.1)
   format (3)
   targets {
-    target (bixby-mobile-en-US)    
     target (bixby-mobile-ko-KR)
   }
   runtime-flags {
     concepts-inherit-super-type-features
     support-halt-effect-in-computed-inputs
     modern-prompt-rejection
+  }
+  store-sections {
+    section (TravelAndTransportation)
   }
 }

@@ -1,3 +1,3 @@
-text (EndPoint) {
+name (EndPoint) {
   description (도착역)
 }

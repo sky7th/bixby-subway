@@ -3,7 +3,7 @@
 
 
 action (FindPath) {
-  description (지하철 경로를 알려주는 액션)
+  description (지하철 경로와 시간을 알려주는 액션)
   collect {
     input (startPoint) {
       type (StartPoint)

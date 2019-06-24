@@ -2,7 +2,8 @@ result-view {
   match: Subway(this)
 
   message {
-    template ("도착역까지 #{value(this.totalTime)} 분 걸립니다.")
+    template ("출발까지 #{value(this.limitTime)} 분 남았습니다. 도착역까지 #{value(this.totalTime)} 분 소요됩니다.")
+    
   }
 
   render {

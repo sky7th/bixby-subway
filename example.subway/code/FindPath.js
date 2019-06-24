@@ -273,7 +273,10 @@ module.exports.function = function findPath(startPoint, endPoint, wishTime, mak)
   var plusTime = typeof (wishTime) === 'undefined' ? 0 : wishTime;
   var date = new Date();
   var utcTime = Number(date.getHours()) * 60 + Number(date.getMinutes()) + plusTime;
-  var nowMinTime = (utcTime + 540) % 1440;
+  if (utcTime + 540 > 1740)
+    var nowMinTime = (utcTime + 540) % 1440;
+  else
+    var nowMinTime = (utcTime + 540);
 
   function changeTime(time) {
     var minTime = Number(time.substr(0, 2)) * 60 + Number(time.substr(3, 2));
@@ -391,6 +394,8 @@ module.exports.function = function findPath(startPoint, endPoint, wishTime, mak)
       [],
       [],
       [],
+      [],
+      [],
       []
     ];
     for (let i = 0; i < line.length; i++) {
@@ -464,9 +469,9 @@ module.exports.function = function findPath(startPoint, endPoint, wishTime, mak)
     return res;
   }
 
-  function getStationTime(j, arrow, nowMinTime, line) {
-
-    for (let i = 0; i < timeSchedule[j][0][arrow - 1].length; i++) {
+  function getStationTime(index, j, arrow, nowMinTime, line) {
+    
+    for (let i = index == 0 ? 0 : index+1; i < timeSchedule[j][0][arrow - 1].length; i++) {
       var arriveTime = changeTime(timeSchedule[j][0][arrow - 1][i].ARRIVETIME);
       var leftTime = changeTime(timeSchedule[j][0][arrow - 1][i].LEFTTIME);
       var apiLine = timeSchedule[j][0][arrow - 1][i].LINE_NUM;
@@ -478,9 +483,10 @@ module.exports.function = function findPath(startPoint, endPoint, wishTime, mak)
         return {
           resultTime: resultTime,
           resultTrain: resultTrain,
-          fastLine: fastLine
+          fastLine: fastLine,
+          idx: i
         };
-      }
+      } 
     }
     return false;
   }
@@ -522,12 +528,18 @@ module.exports.function = function findPath(startPoint, endPoint, wishTime, mak)
     }
   }
 
-  function getResultTime(line, times, j, beforeTime, resFastLine, nowMinTime) {
+  function getResultTime(line, times, j, beforeTime, resFastLine, _nowMinTime) {
     var res = times;
+    var index1 = 0;
+    var index2 = 0;
     while (1) {
       for (let i = 1; i < 3; i++) {
-        var startTime = getStationTime(j, i, (j == 0) ? nowMinTime : changeTime(beforeTime), line);
+        var startTime = getStationTime(i == 1 ? index1 : index2, j, i, (j == 0) ? _nowMinTime : changeTime(beforeTime), line);
+        console.log(startTime.idx);
+        console.log(startTime);
         if (startTime == false) continue;
+        if (i == 1) index1 = startTime.idx;
+        else index2 = startTime.idx;
         var endTime = findSameTrain(j, i, changeTime(startTime.resultTime), startTime.resultTrain);
         if (endTime != false) {
           res[j].push(startTime.resultTime);
@@ -538,7 +550,6 @@ module.exports.function = function findPath(startPoint, endPoint, wishTime, mak)
             resFastLine: resFastLine
           };
         };
-        nowMinTime++;
       }
     }
   }
@@ -565,9 +576,13 @@ module.exports.function = function findPath(startPoint, endPoint, wishTime, mak)
       [],
       [],
       [],
+      [],
+      [],
       []
     ];
     var resFastLine = [
+      [],
+      [],
       [],
       [],
       [],
@@ -625,15 +640,26 @@ module.exports.function = function findPath(startPoint, endPoint, wishTime, mak)
     [
       [{}, {}],
       [{}, {}]
+    ],
+    [
+      [{}, {}],
+      [{}, {}]
+    ],
+    [
+      [{}, {}],
+      [{}, {}]
     ]
   ];
 
   var graph = new Graph(graphData);
-  let path = graph.findShortestPath(String(startPoint), String(endPoint));
+  let path = graph.findShortestPath(String(startPoint.replace(/(\s*)/g,"")), String(endPoint.replace(/(\s*)/g,"")));
   let res = splitPath(path);
   let split = res.resultPath;
   let split2 = split;
+  console.log(split2);
   let engline = res.resultLine;
+  console.log(engline);
+  console.log('asdf');
   let korLine = changeLineName(engline);
   let setTime = splitTime(path);
   let time = setTime.result.res;
@@ -656,7 +682,9 @@ module.exports.function = function findPath(startPoint, endPoint, wishTime, mak)
       result_in['startStation'] = split2[i][0] + '(급)';
       result_in['endStation'] = split2[i][split2[i].length - 1] + '(급)';
     }
-    result_in['totalTime'] = totalTime;
+    result_in['totalTime'] = totalTime + 1;
+    result_in['limitTime'] = changeTime(time[0][0]) - nowMinTime + plusTime - 1;
+    console.log(nowMinTime - changeTime(time[0][0]));
     result.push(result_in);
   }
   return result;

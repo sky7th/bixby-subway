@@ -32,4 +32,8 @@ structure (Subway) {
     type (ImgLine)
     min (Required) max (One)
   }
+  property (limitTime) {
+    type (LimitTime)
+    min (Required) max (One)
+  }
 }

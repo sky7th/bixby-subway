@@ -1,3 +1,3 @@
-name (StartStation) {
-  description (__DESCRIPTION__)
+text (StartStation) {
+  description (라인마다 출발역)
 }

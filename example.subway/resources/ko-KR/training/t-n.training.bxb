@@ -3,3 +3,8 @@ train (t-n60oqt2hq9vuvxkugb579btqu) {
   plan (Y2BhEE2tSMwtyEnVKy5NKk+s1AsGUwziaMJumXkpAYklGRgSrkDx/My8EgZJdINKEotKIFLMDIwMTECSAUiDIASA+GBRAA==)
   last-modified (1560995189013)
 }
+train (t-nw009h72zi3dvtxsl8w9yhzoo) {
+  utterance ("[g:FindPath] (인하대)[v:StartPoint]에서 (숭의)[v:EndPoint] 지하철")
+  plan (Y2BhEC3IzItPzs/VKy5NKk+s1AsGUwziaMJumXkpAYklGRgSrkDx/My8EgZJdINKEotKIFLMDIwMTECSAUiDIATARQE=)
+  last-modified (1561362300709)
+}

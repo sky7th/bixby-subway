@@ -1,0 +1,5 @@
+train (t-euxpsphryr402q0fq8tqx73xq) {
+  utterance ("[g:FindPath] (30)[v:WishTime]분 뒤에 (인하대)[v:StartPoint]에서 (석바위시장)[v:EndPoint]까지 지하철 노선")
+  plan (Y2BlEC3IzItPzs/VKy5NKk+s1AsGUwziaMJumXkpAYklGRgSrkDx/My8EgZJdINKEotKIFLoesIzizNCMnNTGVgYGBmYGJiBNAOQBYEwgCQHAA==)
+  last-modified (1561359072131)
+}
