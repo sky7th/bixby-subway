@@ -1647,6 +1647,10 @@ module.exports = [{
   "line_num": "9",
   "station_cd": "4105"
 }, {
+  "station_nm": "마곡나루",
+  "line_num": "A",
+  "station_cd": "4205"
+}, {
   "station_nm": "봉은사",
   "line_num": "9",
   "station_cd": "4129"

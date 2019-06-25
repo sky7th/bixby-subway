@@ -220,44 +220,51 @@ module.exports.function = function findPath(startPoint, endPoint, wishTime, mak)
             break end;
           }
           if (i == 0) {
-            split = matchLineBeforeNext(cpath[i], cpath[i + 1], cpath[i + 2]);
-            splitB = matchLineBefore(cpath[i], cpath[i + 1]);
+            sameB = matchLineBefore(cpath[i], cpath[i + 1]);
             if (cpath.length == 2)
-              splitLine.push(splitB);
+              splitLine.push(sameB);
             else {
-              if (split)
-                splitLine.push(split);
+              same = matchLineBeforeNext(cpath[i], cpath[i + 1], cpath[i + 2]);
+              if (same)
+                splitLine.push(same);
               else {
-                splitLine.push(splitB);
+                splitLine.push(sameB);
               }
             }
           } else if (i == cpath.length - 1) {
-            split = matchLineBeforeNext(cpath[i - 2], cpath[i - 1], cpath[i]);
-            splitB = matchLineBefore(cpath[i - 1], cpath[i]);
-            if (cpath.length == 2) {
-              splitLine.push(splitB);
-            } else {
-              if (split)
-                splitLine.push(split);
-              else
-                splitLine.push(splitB);
-            }
+              splitLine.push(splitLine[i - 1]);
           } else {
-            split = matchLineBeforeNext(cpath[i - 1], cpath[i], cpath[i + 1]);
-            split_before = matchLineBeforeNext(cpath[i - 2], cpath[i - 1], cpath[i]);
-            splitB = matchLineBefore(cpath[i - 1], cpath[i]);
-            if (split) {
-              splitLine.push(split);
-            } else {
+            same = matchLineBeforeNext(cpath[i - 1], cpath[i], cpath[i + 1]);
+            if (same) {
+              if (same != splitLine[i - 1]) {
+                splitPath = cpath.slice(0, i + 1);
+                cpath = cpath.slice(i, cpath.length + 1);
+                if (i == 1) {
+                  splitLine.push(splitLine[0]);
+                } 
+                else {
+                  splitLine.push(splitLine[i - 1]);
+                }
+                resultPath.push(splitPath);
+                resultLine.push(splitLine);
+                splitPath = [];
+                splitLine = [];
+                break;
+              }
+              splitLine.push(splitLine[i - 1]);
+            } 
+            else {
               splitPath = cpath.slice(0, i + 1);
               cpath = cpath.slice(i, cpath.length + 1);
               if (i == 1) {
-                splitLine.push(splitB);
-              } else {
-                splitLine.push(split_before);
+                splitLine.push(splitLine[0]);
+              } 
+              else {
+                splitLine.push(splitLine[i - 1]);
               }
               resultPath.push(splitPath);
               resultLine.push(splitLine);
+              splitPath = [];
               splitLine = [];
               break;
             }
@@ -272,7 +279,7 @@ module.exports.function = function findPath(startPoint, endPoint, wishTime, mak)
 
   var plusTime = typeof (wishTime) === 'undefined' ? 0 : wishTime;
   var date = new Date();
-  var utcTime = Number(date.getHours()) * 60 + Number(date.getMinutes()) + plusTime;
+  var utcTime = Number(date.getHours()) * 60 + Number(date.getMinutes()) + plusTime - 500;
   if (utcTime + 540 > 1740)
     var nowMinTime = (utcTime + 540) % 1440;
   else
@@ -385,11 +392,17 @@ module.exports.function = function findPath(startPoint, endPoint, wishTime, mak)
       case 'UI':
         if (korLine == '우이신설경전철') return true;
         else return false;
+      case 'M':
+        if (korLine == '서해') return true;
+        else return false;
     }
   }
 
   function changeLineName(line) {
     var res = [
+      [],
+      [],
+      [],
       [],
       [],
       [],
@@ -578,9 +591,15 @@ module.exports.function = function findPath(startPoint, endPoint, wishTime, mak)
       [],
       [],
       [],
+      [],
+      [],
+      [],
       []
     ];
     var resFastLine = [
+      [],
+      [],
+      [],
       [],
       [],
       [],
@@ -648,6 +667,18 @@ module.exports.function = function findPath(startPoint, endPoint, wishTime, mak)
     [
       [{}, {}],
       [{}, {}]
+    ],
+    [
+      [{}, {}],
+      [{}, {}]
+    ],
+    [
+      [{}, {}],
+      [{}, {}]
+    ],
+    [
+      [{}, {}],
+      [{}, {}]
     ]
   ];
 
@@ -687,5 +718,7 @@ module.exports.function = function findPath(startPoint, endPoint, wishTime, mak)
     console.log(nowMinTime - changeTime(time[0][0]));
     result.push(result_in);
   }
+  var a = 'ab cd ef';
+  console.log(a.replace(/(\s*)/g,""));
   return result;
 }

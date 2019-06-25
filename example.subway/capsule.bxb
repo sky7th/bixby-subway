@@ -1,6 +1,6 @@
 capsule {
   id (pin_com.subway)
-  version (0.2.1)
+  version (0.2.2)
   format (3)
   targets {
     target (bixby-mobile-ko-KR)
