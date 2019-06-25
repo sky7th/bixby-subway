@@ -6,10 +6,10 @@ capsule-info {
   website-url (https://github.com/bixbysubway/)
   search-keywords {
     keyword (지하철)
-    keyword (지하철시간표)
+    keyword (지하철 시간표)
     keyword (전철)
   }
-  dispatch-name (지하철)
+  dispatch-name (지하철 알림이)
   dispatch-aliases {
     alias (지하철알림이)
   }

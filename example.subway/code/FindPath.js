@@ -10,6 +10,184 @@ module.exports.function = function findPath(startPoint, endPoint, wishTime, mak)
 
   const graphData = require("./station.js");
   const stationData = require("./vertices.js");
+  
+  var sorter = function (a, b) {
+    return parseFloat(a.cost) - parseFloat(b.cost);
+  }
+
+function findID(station_nm)
+{
+    var i=0
+    var res;
+    stationData.forEach(x=>{if(x.station_nm==station_nm){
+        res=i;    
+    }
+        ++i;
+    });
+    return res;
+}
+
+// var makenode = function(n_node,cost,huristic,parent,current_line){
+//     this.Node=n_node;
+//     this.cost=cost;
+//     this.huristic=huristic;
+//     this.parent=parent;
+//     this.current_line=current_line;
+
+//     return this;
+// }
+
+function contain(list,station_nm,line_num)
+{
+    for (var i in list){
+        if(list[i]['Node']==station_nm&&list[i]['current_line']==line_num)
+            return i;
+    }
+
+    return -1;
+}
+
+function extractline(station_nm)
+{
+    var list=[]
+    var idx=0;
+    for(var i in stationData){
+        if(stationData[i]['station_nm']==station_nm){
+            list.push(stationData[idx]['line_num']);
+        }
+        ++idx;
+    }
+    return list;
+}
+
+function isContainLine(comp1,comp2)
+{
+    for(var i in comp1){
+        for(var j in comp2){
+            if(comp2[j]==comp1[i])
+                return comp1[i];
+        }
+    }
+    return false;
+}
+
+
+function _remove(list,m)
+{
+    for(var i in list){
+        if(list[i]['Node']==m){
+            var a=list.splice(i,1);
+            break;
+        }
+    }
+}
+
+function add(node,endpoint,open,close)
+{
+    for (var key in graphData[node['Node']]){
+        //console.log(id++); 디버깅용
+        new_g = node['cost']+graphData[node['Node']][key];
+        var temp,list,prev_lineNum,current_lineNum;
+        prev_lineNum=extractline(node['Node']);
+        current_lineNum=extractline(key);
+        line_number=isContainLine(prev_lineNum,current_lineNum);
+        var temp1=contain(open,key,line_number);
+        var temp2=contain(close,key,line_number);
+        if(temp1!=-1 || temp2!=-1){
+            if(temp1!=-1){
+                temp=temp1;
+                list=open[temp];
+            }
+            if(temp2!=-1){
+                temp=temp2;
+                list=close[temp];
+            }
+            if(list['cost']<=new_g)
+                continue;
+        }
+        if(contain(open,key,line_number)!=-1){
+            _remove(open,key);
+        }
+        if(contain(close,key,line_number)!=-1){
+            _remove(close,key);
+        }
+        var huristic= function(){
+            //console.log(node['Node'],node['F']); 디버깅용
+            if(line_number!=node['current_line']){
+                new_g+=10;
+            }
+            else if(isContainLine(endpoint,extractline(key))){
+                ;
+            }
+            else
+                new_g+=4;
+            //Math.abs(stationData[findID(endpoint)]['ypoint_wgs']-stationData[findID(key)]['ypoint_wgs'])+Math.abs(stationData[findID(endpoint)]['xpoint_wgs']-stationData[findID(key)]['xpoint_wgs']);
+        }();
+        parent=node;
+       
+        var a={'Node':key,'cost':new_g,'parent':parent,'current_line':line_number};
+        open.push(a);
+        open.sort(sorter)
+    }
+}
+
+function makepath(close_list)
+{
+    var path=[];
+    var transit=[];
+    close_list[0]['current_line']=close_list[1]['current_line'];
+    temp = close_list[close_list.length-1];
+    while(temp!=-1){
+        path.push(temp.Node); //결과값에 이름만 저장
+        //path.push(temp);//결과값에 객체 저장
+        if(temp.current_line!==temp.parent.current_line){
+            if(temp.parent.Node!=undefined)
+                transit.push(temp.parent.Node);
+        }
+        temp=temp.parent;
+    }
+
+    return {PATH:path,TRANSIT:transit};
+}
+
+function shortestTransfer(start, end){
+    var open=[];
+    var close=[];
+
+    start_line_num=extractline(start);
+    end_line_num=extractline(end);
+
+    open.push({'Node':start,'cost':0,'parent':-1,'current_line':0}); //첫 노드를 open에 집어 넣음.
+    var path,transit;
+    while(open.length>0){
+        next_node=open[0];
+        //console.log(open[0]['Node'],open[0]['current_line'],open[0]['cost']); 디버깅
+        close.push(next_node);
+        //console.log(close[close.length-1]['Node'],close[close.length-1]['F'],close[close.length-1]['cost']);
+        var a = open.splice(0,1);
+        if(next_node['Node']==end){
+            result=makepath(close);
+            break;
+        }
+        add(next_node,end_line_num,open,close);
+    }
+
+    // for (var i in close){
+    //     delete close[i];
+    //     console.log(close[i]);
+    //   }
+
+    console.log(result.PATH.reverse());
+
+    //console.log(result.PATH);
+    
+    console.log(result.TRANSIT.reverse());
+
+    /* 결과 값
+    result.TRANSIT --> 
+    */
+  return result.PATH;
+}
 
   var Graph = (function (undefined) {
 
@@ -682,8 +860,10 @@ module.exports.function = function findPath(startPoint, endPoint, wishTime, mak)
     ]
   ];
 
-  var graph = new Graph(graphData);
-  let path = graph.findShortestPath(String(startPoint.replace(/(\s*)/g,"")), String(endPoint.replace(/(\s*)/g,"")));
+//  var graph = new Graph(graphData);
+//  let path = graph.findShortestPath(String(startPoint.replace(/(\s*)/g,"")), String(endPoint.replace(/(\s*)/g,"")));
+  let path = shortestTransfer(String(startPoint.replace(/(\s*)/g,"")), String(endPoint.replace(/(\s*)/g,"")));
+  console.log(path, 'asdf');
   let res = splitPath(path);
   let split = res.resultPath;
   let split2 = split;

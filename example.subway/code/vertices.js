@@ -251,7 +251,7 @@ module.exports = [{
   "line_num": "1",
   "station_cd": "1408"
 }, {
-  "station_nm": "쌍용(나사렛대)",
+  "station_nm": "쌍용나사렛대",
   "line_num": "1",
   "station_cd": "1402"
 }, {
@@ -939,7 +939,7 @@ module.exports = [{
   "line_num": "4",
   "station_cd": "1758"
 }, {
-  "station_nm": "총신대입구(이수)",
+  "station_nm": "총신대입구이수",
   "line_num": "4",
   "station_cd": "0432"
 }, {
@@ -1507,7 +1507,7 @@ module.exports = [{
   "line_num": "7",
   "station_cd": "2731"
 }, {
-  "station_nm": "총신대입구(이수)",
+  "station_nm": "총신대입구이수",
   "line_num": "7",
   "station_cd": "2738"
 }, {
@@ -1951,7 +1951,7 @@ module.exports = [{
   "line_num": "E",
   "station_cd": "4508"
 }, {
-  "station_nm": "시청·용인대",
+  "station_nm": "시청용인대",
   "line_num": "E",
   "station_cd": "4509"
 }, {
@@ -1959,11 +1959,11 @@ module.exports = [{
   "line_num": "E",
   "station_cd": "4504"
 }, {
-  "station_nm": "운동장·송담대",
+  "station_nm": "운동장송담대",
   "line_num": "E",
   "station_cd": "4512"
 }, {
-  "station_nm": "전대·에버랜드",
+  "station_nm": "전대에버랜드",
   "line_num": "E",
   "station_cd": "4517"
 }, {
@@ -2391,7 +2391,7 @@ module.exports = [{
   "line_num": "K",
   "station_cd": "1213"
 }, {
-  "station_nm": "신촌(경의중앙선)",
+  "station_nm": "신촌경의중앙선",
   "line_num": "K",
   "station_cd": "1252"
 }, {
@@ -2415,7 +2415,7 @@ module.exports = [{
   "line_num": "K",
   "station_cd": "1207"
 }, {
-  "station_nm": "양평(경의중앙선)",
+  "station_nm": "양평경의중앙선",
   "line_num": "K",
   "station_cd": "1217"
 }, {
@@ -2755,7 +2755,7 @@ module.exports = [{
   "line_num": "U",
   "station_cd": "4606"
 }, {
-  "station_nm": "4·19민주묘지",
+  "station_nm": "419민주묘지",
   "line_num": "UI",
   "station_cd": "4703"
 }, {

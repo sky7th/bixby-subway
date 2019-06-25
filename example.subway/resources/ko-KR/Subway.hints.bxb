@@ -1,7 +1,7 @@
 hints {
   uncategorized {
-    utterance (선학에서 주안까지 지하철 노선)
-    utterance (10분 뒤에 주안에서 선학까지 지하철 노선)
-    utterance (30분 뒤에 인하대에서 석바위시장까지 지하철 노선)
+    utterance (원인재에서 신도림까지)
+    utterance (10분 뒤에 원인재에서 신도림)
+    utterance (30분 뒤에 원인재 신도림)
   }
 }
