@@ -7,7 +7,19 @@ action (FindPath) {
   collect {
     input (startPoint) {
       type (StartPoint)
-      min (Required) max (One)
+      min (Optional) max (One)
+    }
+    input (point) {
+      type (geo.GeoPoint) //라이브러리 가져와서 모델 안만듬
+      min (Optional) max (One) //필수요소
+       default-init{ //기본값 초기화
+        if($user.currentLocation.$exists){ //위치 승인을 했다면
+          intent{
+            goal : geo.GeoPoint
+            value-set : geo.CurrentLocation {$expr($user.currentLocation)}
+          }
+        }
+      }
     }
      input (endPoint) {
       type (EndPoint)

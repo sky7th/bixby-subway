@@ -1,4 +1,4 @@
-module.exports.function = function findPath(startPoint, endPoint, wishTime, mak) {
+module.exports.function = function findPath(startPoint, endPoint, wishTime, mak, point) {
   const config = require('config');
   const baseURL = config.get("baseUrl");
   const console = require('console');
@@ -11,8 +11,54 @@ module.exports.function = function findPath(startPoint, endPoint, wishTime, mak)
   const graphData = require("./station.js");
   const stationData = require("./vertices.js");
   
+  // 현재 위치 좌표를 가져와서 근처에 있는 역을 찾음
+    var API=config.get("apiUrl");
+  var KAPI=config.get("kakaoUrl");
+  var options1 = {
+    format: 'json',
+    headers: {
+      'accept': 'application/json'
+    },
+  };
+  
+  var options2 = {
+    format: 'json',
+    headers: {
+      'accept': 'application/json',
+      'Authorization': 'KakaoAK c5e0e39648e51d59f26c2740459d223e'
+    },
+  };
+  
+  function makeUrl(x,y){
+    var fullurl=KAPI+"x="+x+"&"+"y="+y+"&"+"input_coord=WGS84&output_coord=WTM";
+    return fullurl;
+  }
+  
+ 
+  function location(){
+  console.log(point);
+  let TransFormUrl = makeUrl(point.longitude,point.latitude);
+
+  let response = http.getUrl(TransFormUrl, options2);  
+  let x=response.documents[0].x;
+  let y=response.documents[0].y;
+
+  let GetStationUrl = API+x+"/"+y;
+  
+  let data = http.getUrl(GetStationUrl,options1);
+  
+  console.log(data.stationList[0].statnNm);
+  
+  return data.stationList[0].statnNm;
+  }
+  
+  
+  if(startPoint==undefined){
+    startPoint=location();
+  }
+  
   var sorter = function (a, b) {
-    return parseFloat(a.cost) - parseFloat(b.cost);
+    return parseInt(a.cost) - parseInt(b.cost);
   }
 
 function findID(station_nm)
@@ -37,6 +83,7 @@ function findID(station_nm)
 //     return this;
 // }
 
+// 두 번째로 적용한 최소 환승 알고리즘 (빅스비에 메모리 제한이 있어, 결과적으로는 이 함수는 쓰지 않고 ./pathData 에 역마다 경로를 모두 숫자로 저장하였고 이를 불러오는 방식을 택함)
 function contain(list,station_nm,line_num)
 {
     for (var i in list){
@@ -86,11 +133,11 @@ function add(node,endpoint,open,close)
 {
     for (var key in graphData[node['Node']]){
         //console.log(id++); 디버깅용
-        new_g = node['cost']+graphData[node['Node']][key];
+        var new_g = node['cost']+graphData[node['Node']][key];
         var temp,list,prev_lineNum,current_lineNum;
         prev_lineNum=extractline(node['Node']);
         current_lineNum=extractline(key);
-        line_number=isContainLine(prev_lineNum,current_lineNum);
+        var line_number=isContainLine(prev_lineNum,current_lineNum);
         var temp1=contain(open,key,line_number);
         var temp2=contain(close,key,line_number);
         if(temp1!=-1 || temp2!=-1){
@@ -110,7 +157,7 @@ function add(node,endpoint,open,close)
         }
         if(contain(close,key,line_number)!=-1){
             _remove(close,key);
-        }
+        }/*
         var huristic= function(){
             //console.log(node['Node'],node['F']); 디버깅용
             if(line_number!=node['current_line']){
@@ -122,10 +169,11 @@ function add(node,endpoint,open,close)
             else
                 new_g+=4;
             //Math.abs(stationData[findID(endpoint)]['ypoint_wgs']-stationData[findID(key)]['ypoint_wgs'])+Math.abs(stationData[findID(endpoint)]['xpoint_wgs']-stationData[findID(key)]['xpoint_wgs']);
-        }();
-        parent=node;
+        }();*/
+        var parent=node;
        
         var a={'Node':key,'cost':new_g,'parent':parent,'current_line':line_number};
+        var open;
         open.push(a);
         open.sort(sorter)
     }
@@ -136,7 +184,7 @@ function makepath(close_list)
     var path=[];
     var transit=[];
     close_list[0]['current_line']=close_list[1]['current_line'];
-    temp = close_list[close_list.length-1];
+    var temp = close_list[close_list.length-1];
     while(temp!=-1){
         path.push(temp.Node); //결과값에 이름만 저장
         //path.push(temp);//결과값에 객체 저장
@@ -145,6 +193,7 @@ function makepath(close_list)
                 transit.push(temp.parent.Node);
         }
         temp=temp.parent;
+      console.log(path[path.length-1]);
     }
 
     return {PATH:path,TRANSIT:transit};
@@ -160,13 +209,13 @@ function shortestTransfer(start, end){
     open.push({'Node':start,'cost':0,'parent':-1,'current_line':0}); //첫 노드를 open에 집어 넣음.
     var path,transit;
     while(open.length>0){
-        next_node=open[0];
+        var next_node=open[0];
         //console.log(open[0]['Node'],open[0]['current_line'],open[0]['cost']); 디버깅
         close.push(next_node);
         //console.log(close[close.length-1]['Node'],close[close.length-1]['F'],close[close.length-1]['cost']);
         var a = open.splice(0,1);
         if(next_node['Node']==end){
-            result=makepath(close);
+            var result=makepath(close);
             break;
         }
         add(next_node,end_line_num,open,close);
@@ -177,18 +226,19 @@ function shortestTransfer(start, end){
     //     console.log(close[i]);
     //   }
 
-    console.log(result.PATH.reverse());
+  //  console.log(result.PATH.reverse());
 
     //console.log(result.PATH);
     
-    console.log(result.TRANSIT.reverse());
+//    console.log(result.TRANSIT.reverse());
 
     /* 결과 값
     result.TRANSIT --> 
     */
-  return result.PATH;
+  return result.PATH.reverse();
 }
 
+  // 처음에 적용 했던 최소 시간 알고리즘
   var Graph = (function (undefined) {
 
     var extractKeys = function (obj) {
@@ -337,6 +387,7 @@ function shortestTransfer(start, end){
 
   })();
 
+  // 3개의 역에서 중복 되는 호선을 찾음
   function matchLineBeforeNext(beforeStation, nowStation, nextStation) {
     var beforeLine = new Array;
     var nowLine = new Array;
@@ -362,6 +413,7 @@ function shortestTransfer(start, end){
     return false;
   }
 
+  // 2개의 역에서 중복되는 역을 찾음
   function matchLineBefore(beforeStation, nowStation) {
     var beforeLine = new Array;
     var nowLine = new Array;
@@ -381,6 +433,7 @@ function shortestTransfer(start, end){
     return false;
   }
 
+  // 환승할 경우 화면에서 경로가 호선 별로 나눠져서 보여지기 때문에 경로를 나눔
   function splitPath(path) {
     var cpath = path;
     var splitPath = new Array();
@@ -399,8 +452,9 @@ function shortestTransfer(start, end){
           }
           if (i == 0) {
             sameB = matchLineBefore(cpath[i], cpath[i + 1]);
-            if (cpath.length == 2)
-              splitLine.push(sameB);
+            if (cpath.length == 2) {
+                splitLine.push(sameB);
+            }
             else {
               same = matchLineBeforeNext(cpath[i], cpath[i + 1], cpath[i + 2]);
               if (same)
@@ -414,7 +468,53 @@ function shortestTransfer(start, end){
           } else {
             same = matchLineBeforeNext(cpath[i - 1], cpath[i], cpath[i + 1]);
             if (same) {
-              if (same != splitLine[i - 1]) {
+              if ((same != splitLine[i - 1] && splitLine[i-1] == 'K')) {
+                  splitLine.push(splitLine[i - 1]);
+              }
+              else if (same != splitLine[i - 1]  
+                  // 같은 호선이지만 환승해야 하는 경우
+                  || (cpath[0] == '광명' && cpath[i] == '영등포')
+                  
+                  || (cpath[i - 1] == '구일' && cpath[i + 1] == '가산디지털단지')
+                  || (cpath[i - 1] == '가산디지털단지' && cpath[i + 1] == '구일')
+                  
+                  || (cpath[i - 1] == '광명' && cpath[i + 1] == '석수')
+                  || (cpath[i - 1] == '석수' && cpath[i + 1] == '광명')
+                  
+                  || (cpath[i - 1] == '서동탄' && cpath[i + 1] == '세류')
+                  || (cpath[i - 1] == '세류' && cpath[i + 1] == '서동탄')
+                  
+                  || (cpath[i - 1] == '문래' && cpath[i + 1] == '도림천')
+                  || (cpath[i - 1] == '도림천' && cpath[i + 1] == '문래')
+                  
+                  || (cpath[i - 1] == '길동' && cpath[i + 1] == '둔촌동')
+                  || (cpath[i - 1] == '둔촌동' && cpath[i + 1] == '길동')
+                  
+                  || (cpath[i - 1] == '용답' && cpath[i + 1] == '뚝섬')
+                  || (cpath[i - 1] == '뚝섬' && cpath[i + 1] == '용답')
+                  
+                  // 청량리 부터 경춘선 라인 환승지들이 겹치는 호선이 이어진다. (앞 뒤 비교만으로는 환승지 구별 불가)
+                  // matchLineBeforeNext 함수 에서 가장 빨리 찾는 호선을 선택하기에 왕십리에서 청량리를 거칠 경우 환승할 우려가 있음 
+                  || (cpath[i - 1] == '왕십리' && cpath[cpath.length-1] == '신내')
+                  || (cpath[i - 1] == '왕십리' && cpath[cpath.length-1] == '갈매')
+                  || (cpath[i - 1] == '왕십리' && cpath[cpath.length-1] == '별내')
+                  || (cpath[i - 1] == '왕십리' && cpath[cpath.length-1] == '퇴계원')
+                  || (cpath[i - 1] == '왕십리' && cpath[cpath.length-1] == '사릉')
+                  || (cpath[i - 1] == '왕십리' && cpath[cpath.length-1] == '금곡')
+                  || (cpath[i - 1] == '왕십리' && cpath[cpath.length-1] == '평내호평')
+                  || (cpath[i - 1] == '왕십리' && cpath[cpath.length-1] == '천마산')
+                  || (cpath[i - 1] == '왕십리' && cpath[cpath.length-1] == '마석')
+                  || (cpath[i - 1] == '왕십리' && cpath[cpath.length-1] == '대성리')
+                  || (cpath[i - 1] == '왕십리' && cpath[cpath.length-1] == '청평')
+                  || (cpath[i - 1] == '왕십리' && cpath[cpath.length-1] == '상천')
+                  || (cpath[i - 1] == '왕십리' && cpath[cpath.length-1] == '가평')
+                  || (cpath[i - 1] == '왕십리' && cpath[cpath.length-1] == '굴봉산')
+                  || (cpath[i - 1] == '왕십리' && cpath[cpath.length-1] == '백양리')
+                  || (cpath[i - 1] == '왕십리' && cpath[cpath.length-1] == '강촌')
+                  || (cpath[i - 1] == '왕십리' && cpath[cpath.length-1] == '김유정')
+                  || (cpath[i - 1] == '왕십리' && cpath[cpath.length-1] == '남춘천')
+                  || (cpath[i - 1] == '왕십리' && cpath[cpath.length-1] == '춘천')   
+                ){
                 splitPath = cpath.slice(0, i + 1);
                 cpath = cpath.slice(i, cpath.length + 1);
                 if (i == 1) {
@@ -434,12 +534,7 @@ function shortestTransfer(start, end){
             else {
               splitPath = cpath.slice(0, i + 1);
               cpath = cpath.slice(i, cpath.length + 1);
-              if (i == 1) {
-                splitLine.push(splitLine[0]);
-              } 
-              else {
-                splitLine.push(splitLine[i - 1]);
-              }
+              splitLine.push(splitLine[i - 1]);
               resultPath.push(splitPath);
               resultLine.push(splitLine);
               splitPath = [];
@@ -455,19 +550,20 @@ function shortestTransfer(start, end){
     };
   }
 
-  var plusTime = typeof (wishTime) === 'undefined' ? 0 : wishTime;
+  var plusTime = typeof (wishTime) === 'undefined' ? 0 : wishTime; 
   var date = new Date();
+  // 빅스비에서 현재 시간이 UTC 시간으로 적용되서 한국 시간인 UTC 시간 + 9시간을 하는 과정
   var utcTime = Number(date.getHours()) * 60 + Number(date.getMinutes()) + plusTime - 500;
   if (utcTime + 540 > 1740)
     var nowMinTime = (utcTime + 540) % 1440;
   else
     var nowMinTime = (utcTime + 540);
-
+  // 00:00:00 문자열 시간을 숫자(분)으로 바꿈
   function changeTime(time) {
     var minTime = Number(time.substr(0, 2)) * 60 + Number(time.substr(3, 2));
     return minTime;
   }
-
+  // 출발 시간을 열차 문이 닫히고 출발하는 시간으로 했기 때문에(첫차의 경우 도착 시간이 없음) 1분을 뺌
   function minusTime(time) {
     time -= 1;
     var hour = Math.floor(time / 60);
@@ -480,7 +576,7 @@ function shortestTransfer(start, end){
 
     return res;
   }
-
+  // 1분을 빼지 않는 경우 (도착시간)
   function noMinusTime(time) {
     var hour = Math.floor(time / 60);
     var min = time % 60;
@@ -492,11 +588,36 @@ function shortestTransfer(start, end){
 
     return res;
   }
-
+  // 초 단위를 없앰  00:00:00 -> 00:00
   function noSecond(time) {
     return time.substr(0, 5);
   }
-
+  // UTC 시간에 9를 더해주면서 날짜가 바뀔수 있음
+  function setDay(day) {
+    if (utcTime + 540 >= 1440) {
+      if (day == 6)
+        day = 0;
+      else
+        day = day + 1;
+    }
+    return day;
+  }
+  // 1은 평일, 2는 토요일, 3은 일요일
+  function nowDay(day) {
+    switch (day) {
+      case 1:
+      case 2:
+      case 3:
+      case 4:
+      case 5:
+        return '1';
+      case 6:
+        return '2';
+      case 0:
+        return '3';
+    }
+  }
+  // 환승지의 경우 같은 이름이지만 호선이 여러 개 있기에 구분을 해야함
   function matchStation(station, line) {
     for (let i = 0; i < stationData.length; i++) {
       if (stationData[i].station_nm == station && stationData[i].line_num == line)
@@ -504,7 +625,7 @@ function shortestTransfer(start, end){
     }
     return null;
   }
-
+  // API 에는 한글로, JSON 파일에는 영어 이니셜로 되어 있어서 비교 과정이 필요
   function matchLine(engLine, korLine) {
     switch (engLine) {
       case '1':
@@ -575,7 +696,7 @@ function shortestTransfer(start, end){
         else return false;
     }
   }
-
+  // 영어 이니셜인 호선을 화면에 보여줄 한글로 변경 (추후 호선 아이콘으로 대체하였기에 쓰이지 않음)
   function changeLineName(line) {
     var res = [
       [],
@@ -660,17 +781,31 @@ function shortestTransfer(start, end){
     return res;
   }
 
+  // API 로 해당 역의 정보를 받아옴
+  function getStationInfo(station, day, arrow) {
+
+    let url = baseURL + api + '/json/' + service + '/1/800/' + station + '/' + day + '/' + arrow + '/';
+    const json = http.getUrl(url, {
+      format: "json",
+      cacheTime: 0,
+      returnHeaders: true
+    });
+    const timeSchedule = json.parsed.SearchSTNTimeTableByIDService.row;
+
+    return timeSchedule;
+  }
+  // 받아온 정보를 통해서 현재 시간에서 가장 가까운 도착 시간을 고름
   function getStationTime(index, j, arrow, nowMinTime, line) {
     
-    for (let i = index == 0 ? 0 : index+1; i < timeSchedule[j][0][arrow - 1].length; i++) {
-      var arriveTime = changeTime(timeSchedule[j][0][arrow - 1][i].ARRIVETIME);
-      var leftTime = changeTime(timeSchedule[j][0][arrow - 1][i].LEFTTIME);
-      var apiLine = timeSchedule[j][0][arrow - 1][i].LINE_NUM;
-      var fastLine = timeSchedule[j][0][arrow - 1][i].EXPRESS_YN;
+    for (let i = index == 0 ? 0 : index+1; i < timeSchedule[0][arrow - 1].length; i++) {
+      var arriveTime = changeTime(timeSchedule[0][arrow - 1][i].ARRIVETIME);
+      var leftTime = changeTime(timeSchedule[0][arrow - 1][i].LEFTTIME);
+      var apiLine = timeSchedule[0][arrow - 1][i].LINE_NUM;
+      var fastLine = timeSchedule[0][arrow - 1][i].EXPRESS_YN;
 
       if (leftTime > nowMinTime && matchLine(line, apiLine) && leftTime != 0) {
-        let resultTime = timeSchedule[j][0][arrow - 1][i].LEFTTIME;
-        let resultTrain = timeSchedule[j][0][arrow - 1][i].TRAIN_NO;
+        let resultTime = timeSchedule[0][arrow - 1][i].LEFTTIME;
+        let resultTrain = timeSchedule[0][arrow - 1][i].TRAIN_NO;
         return {
           resultTime: resultTime,
           resultTrain: resultTrain,
@@ -681,44 +816,23 @@ function shortestTransfer(start, end){
     }
     return false;
   }
-
+  // 열차에는 상행선과 하행선이 있기 때문에 출발지에서 현재 시간 다음에 있는 
+  // 열차의 열차번호를 찾고 환승지에서 그 열차번호의 정보가 있는지를 확인함
   function findSameTrain(j, arrow, time, train) {
 
-    for (let i = 0; i < timeSchedule[j][1][arrow - 1].length; i++) {
-      var arriveTime = changeTime(timeSchedule[j][1][arrow - 1][i].ARRIVETIME);
-      if (arriveTime > time && timeSchedule[j][1][arrow - 1][i].TRAIN_NO == train && arriveTime != 0) {
-        resultTime = timeSchedule[j][1][arrow - 1][i].ARRIVETIME;
+    for (let i = 0; i < timeSchedule[1][arrow - 1].length; i++) {
+      var arriveTime = changeTime(timeSchedule[1][arrow - 1][i].ARRIVETIME);
+      if (arriveTime > time && timeSchedule[1][arrow - 1][i].TRAIN_NO == train && arriveTime != 0) {
+        resultTime = timeSchedule[1][arrow - 1][i].ARRIVETIME;
         return resultTime;
       }
     }
     return false;
   }
 
-  function setDay(day) {
-    if (utcTime + 540 >= 1440) {
-      if (day == 6)
-        day = 0;
-      else
-        day = day + 1;
-    }
-    return day;
-  }
 
-  function nowDay(day) {
-    switch (day) {
-      case 1:
-      case 2:
-      case 3:
-      case 4:
-      case 5:
-        return '1';
-      case 6:
-        return '2';
-      case 0:
-        return '3';
-    }
-  }
-
+  // 상행선과 하행선 모두 비교함
+  // (상행선, 하행선 모두 없을 경우 다음 시간 인덱스로 넘어감)
   function getResultTime(line, times, j, beforeTime, resFastLine, _nowMinTime) {
     var res = times;
     var index1 = 0;
@@ -744,18 +858,21 @@ function shortestTransfer(start, end){
       }
     }
   }
-
-  function getStationInfo(station, day, arrow) {
-
-    let url = baseURL + api + '/json/' + service + '/1/800/' + station + '/' + day + '/' + arrow + '/';
-    const json = http.getUrl(url, {
-      format: "json",
-      cacheTime: 0,
-      returnHeaders: true
-    });
-    const timeSchedule = json.parsed.SearchSTNTimeTableByIDService.row;
-
-    return timeSchedule;
+  // stationData JSON 데이터 파일에서 역 숫자를 역 이름으로 변환
+  function findStationName(num) {
+    for (let i = 0; i < stationData.length; i++) {
+      if (num == stationData[i].num) {
+        return stationData[i].station_nm;
+      }
+    }
+  }
+  // stationData JSON 데이터 파일에서 역 이름을 역 숫자로 변환
+  function findStationNum(name) {
+    for (let i = 0; i < stationData.length; i++) {
+      if (name == stationData[i].station_nm) {
+        return stationData[i].num;
+      }
+    }
   }
 
   function splitTime(path) {
@@ -786,20 +903,14 @@ function shortestTransfer(start, end){
       [],
       []
     ];
-
+    // 나눠 놓은 경로마다 시간 정보를 얻어옴
     for (let i = 0; i < resultLine.length; i++) {
       var startStationCode = matchStation(resultPath[i][0], resultLine[i][0]);
       var endStationCode = matchStation(resultPath[i][resultPath[i].length - 1], resultLine[i][resultLine[i].length - 1]);
-
-
       for (let a = 0; a <= 1; a++) {
-        timeSchedule[i][0][a] = getStationInfo(startStationCode, nowDay(setDay(date.getDay())), a + 1);
-        timeSchedule[i][1][a] = getStationInfo(endStationCode, nowDay(setDay(date.getDay())), a + 1);
+        timeSchedule[0][a] = getStationInfo(startStationCode, nowDay(setDay(date.getDay())), a + 1);
+        timeSchedule[1][a] = getStationInfo(endStationCode, nowDay(setDay(date.getDay())), a + 1);
       }
-    }
-    for (let i = 0; i < resultLine.length; i++) {
-      var startStationCode = matchStation(resultPath[i][0], resultLine[i][0]);
-      var endStationCode = matchStation(resultPath[i][resultPath[i].length - 1], resultLine[i][resultLine[i].length - 1]);
       var beforeTime;
       if (i == 0)
         beforeTime = false;
@@ -807,8 +918,9 @@ function shortestTransfer(start, end){
         beforeTime = times[i - 1][1];
 
       var result = getResultTime(resultLine[i][0], times, i, beforeTime, resFastLine, nowMinTime);
+      timeSchedule = [[{}, {}],[{}, {}]];
     }
-    console.log(result);
+    console.log(result, 'timetime');
     let totalTime = changeTime(times[resultLine.length - 1][1]) - changeTime(times[0][0]);
     //  setTimeout(() => {console.log(result)}, 2000);
     return {
@@ -818,52 +930,29 @@ function shortestTransfer(start, end){
   }
 
   var timeSchedule = [
-    [
-      [{}, {}],
-      [{}, {}]
-    ],
-    [
-      [{}, {}],
-      [{}, {}]
-    ],
-    [
-      [{}, {}],
-      [{}, {}]
-    ],
-    [
-      [{}, {}],
-      [{}, {}]
-    ],
-    [
-      [{}, {}],
-      [{}, {}]
-    ],
-    [
-      [{}, {}],
-      [{}, {}]
-    ],
-    [
-      [{}, {}],
-      [{}, {}]
-    ],
-    [
-      [{}, {}],
-      [{}, {}]
-    ],
-    [
-      [{}, {}],
-      [{}, {}]
-    ],
-    [
-      [{}, {}],
-      [{}, {}]
-    ]
+    [{}, {}],
+    [{}, {}]
   ];
+  // 발화로 입력 받은 문자열 띄어쓰기 제거
+  let Start = String(startPoint.replace(/(\s*)/g,""));
+  let End = String(endPoint.replace(/(\s*)/g,""));
+  let StartNum = findStationNum(Start);
+  let EndNum = findStationNum(End);
+  // 역마다 최소 환승 경로들이 저장되어있는 경로 => pathData 폴더
+  const pathData = require("./pathData/" + StartNum + ".js");
 
+  let pathNum = pathData[EndNum];
+  let path = [];
+  
+  for (let i = 0; i < pathNum.length; i++) {
+    path[i] = findStationName(pathNum[i]);
+  }
+  
 //  var graph = new Graph(graphData);
 //  let path = graph.findShortestPath(String(startPoint.replace(/(\s*)/g,"")), String(endPoint.replace(/(\s*)/g,"")));
-  let path = shortestTransfer(String(startPoint.replace(/(\s*)/g,"")), String(endPoint.replace(/(\s*)/g,"")));
-  console.log(path, 'asdf');
+
+//  let path = shortestTransfer(Start, End);
+  console.log(path, 'path 끝');
   let res = splitPath(path);
   let split = res.resultPath;
   let split2 = split;
@@ -872,8 +961,10 @@ function shortestTransfer(start, end){
   console.log(engline);
   console.log('asdf');
   let korLine = changeLineName(engline);
+  console.log(korLine);
   let setTime = splitTime(path);
   let time = setTime.result.res;
+  console.log(time, 'fsadfasdf');
   let fastLine = setTime.result.resFastLine;
   let totalTime = setTime.totalTime;
 
@@ -881,9 +972,9 @@ function shortestTransfer(start, end){
 
   for (let i = 0; i < split2.length; i++) {
     var result_in = {};
-    result_in['imgLine'] = engline[i][0];
-    result_in['line'] = korLine[i][0];
-    result_in['startTime'] = noSecond(minusTime(changeTime(time[i][0])));
+    result_in['imgLine'] = engline[i][0]; // 영어 이니셜 호선
+    result_in['line'] = korLine[i][0];  // 한글 이름 호선
+    result_in['startTime'] = noSecond(minusTime(changeTime(time[i][0]))); 
     result_in['path'] = split2[i];
     result_in['endTime'] = noSecond(noMinusTime(changeTime(time[i][1])));
     if (fastLine[i][0] == 'G') {
@@ -893,12 +984,10 @@ function shortestTransfer(start, end){
       result_in['startStation'] = split2[i][0] + '(급)';
       result_in['endStation'] = split2[i][split2[i].length - 1] + '(급)';
     }
-    result_in['totalTime'] = totalTime + 1;
-    result_in['limitTime'] = changeTime(time[0][0]) - nowMinTime + plusTime - 1;
+    result_in['totalTime'] = totalTime + 1; // 총 걸린 시간
+    result_in['limitTime'] = changeTime(time[0][0]) - nowMinTime + plusTime - 1; // 맨 첫 번째역 출발까지 남은 시간
     console.log(nowMinTime - changeTime(time[0][0]));
     result.push(result_in);
   }
-  var a = 'ab cd ef';
-  console.log(a.replace(/(\s*)/g,""));
   return result;
 }
